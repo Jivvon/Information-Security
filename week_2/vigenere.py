@@ -19,4 +19,27 @@ def vigenere_encrypt_decrypt(text: str, key: str, mode: EncryptionMode) -> str:
     :param mode: 암호화할 지 복호화할 지 구분하기 위한 값
     :return: 비제네르 암호를 이용한 암호문 혹은 복호화된 문자열
     """
-    pass
+
+    key2ord = list(map(lambda x:ord(x)-ord('a') if x in lower_alphabet_list else ord(x) - ord('A'),key))
+    answer = ''
+    tmp = 0
+
+    if mode == EncryptionMode.ENC:
+        for idx, ch in enumerate(text):
+            if ch in lower_alphabet_list:
+                tmp = (ord(ch) + key2ord[idx % len(key)] - ord('a')) % 26 + ord('a')
+            elif ch in upper_alphabet_list:
+                tmp = (ord(ch) + key2ord[idx % len(key)] - ord('A')) % 26 + ord('A')
+            elif ch in number_list:
+                tmp = (ord(ch) + key2ord[idx % len(key)] - ord('0')) % 10 + ord('0')
+            answer += chr(tmp)
+    elif mode == EncryptionMode.DEC:
+        for idx, ch in enumerate(text):
+            if ch in lower_alphabet_list:
+                tmp = (ord(ch) - key2ord[idx % len(key)] - ord('a')) % 26 + ord('a')
+            elif ch in upper_alphabet_list:
+                tmp = (ord(ch) - key2ord[idx % len(key)] - ord('A')) % 26 + ord('A')
+            elif ch in number_list:
+                tmp = (ord(ch) - key2ord[idx % len(key)] - ord('0')) % 10 + ord('0')
+            answer += chr(tmp)
+    return answer
