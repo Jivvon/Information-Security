@@ -46,18 +46,19 @@ def login(socket):
     TODO: 아이디와 패스워드 값을 전송하는 함수
     :return:
     """
-    user_id = input()
-    password = input()
     # socket 통신으로 id와 password를 전송
-    pass
+    user_id = input('id: ')
+    socket.send(user_id.encode('utf-8'))
+    password = input('password: ')
+    socket.send(password.encode('utf-8'))
 
 
 def generate_key(key: int or None = None) -> int:
     """
     테스트를 위해 임의 key를 입력할 경우에 해당 key를 반환하도록 구현
     기본적으로 랜덤한 secret 키를 생성
-    :param key:
-    :return:
+    :param key: 값이 주어지면 그대로 반환한다. 테스트 시에만 사용.
+    :return: 랜덤 secret 키
     """
     if key is not None:
         return key
@@ -67,22 +68,26 @@ def generate_key(key: int or None = None) -> int:
 def diffie_hellman(my_secret_key: int, target_public_key: int) -> bytes:
     """
     TODO: [함수 설명] 16byte 크기로 잘라 반
-    :param my_secret_key:
-    :param target_public_key:
-    :return:
+    나의 개인키와 상대방의 공개키를 이용하여 대칭키 생성. 16까지만 사용한다
+    :param my_secret_key: 내 개인키
+    :param target_public_key: 상대방 공개키
+    :return: 나와 상대방의 대칭키 = target_public_key^(my_secret_key) mod p
     """
     p = 9723448991222331098330293371197519246446906995517093957384966642329511534161627658859950763542683697458467770974347360725590854862427735703874399411721649
     g = 2348329574892572380947382043
+    return pow(target_public_key, my_secret_key, p).to_bytes(64, byteorder='little')[:16]
 
 
 def public_key(secret_key: int) -> int:
     """
     TODO: diffie hellman에서의 public key를 계산하여 반환하는 함수
-    :param secret_key:
-    :return:
+    :param secret_key: 내 개인키
+    :return: 내 공개키 = g^(secret_key) mod p
     """
     p = 9723448991222331098330293371197519246446906995517093957384966642329511534161627658859950763542683697458467770974347360725590854862427735703874399411721649
     g = 2348329574892572380947382043
+    return pow(g, secret_key, p)
+
 
 
 def connect_socket():
@@ -97,6 +102,7 @@ def connect_socket():
 
     my_secret_key = generate_key()
     # TODO: 자신의 public key를 전송해야 함
+    client_socket.send(bytes(public_key(my_secret_key).to_bytes(64, byteorder='little')))
 
     target_public_key = int.from_bytes(client_socket.recv(1024), byteorder='little')  # little endian 으로 보내야 함
     key = diffie_hellman(my_secret_key, target_public_key)
