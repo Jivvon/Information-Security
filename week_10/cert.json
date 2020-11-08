@@ -1,7 +1,1 @@
-{
-  "student_id": "202099999",
-  "is_success": "true",
-  "week": 10,
-  "public_key": null,
-  "sign": null
-}
+{"student_id": "201502119", "is_success": "true", "week": 10, "public_key": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEbSJraHeUhYZxx8I7vfyNhnBN9tVb\npfi9SKDC9raGLzDWseJU3YekoA25TzFl6bFAh9ggxPQOKw8qSVr7MeYmsQ==\n-----END PUBLIC KEY-----", "sign": "aa8e8de69517df2bd054ba8af7e312737922206f07493ffdb6d298ef7491d37207ee3190a45606b5c320b866a59c8ebe9c8f73865fc8c4df3f15c554b98f256f"}
