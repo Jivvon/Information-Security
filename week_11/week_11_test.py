@@ -41,6 +41,8 @@ def test_deep_pki():
     nonce = b'20201111'
     certs, sign = holder.present(nonce)
 
+    print(root.cert_chain == issuer2.cert_chain == issuer3.cert_chain)
+
     assert len(root.cert_chain) == 0
     assert len(issuer2.cert_chain) == 1
     assert len(issuer3.cert_chain) == 2
