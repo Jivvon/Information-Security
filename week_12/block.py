@@ -76,9 +76,21 @@ class MerkleTree:
         """
         TODO: merkle tree를 만드는 함수
         최종 반환 시에는 Merkle root를 반환함
-        :param merkle_nodes:
-        :return:
+        :param merkle_nodes: Merkle tree의 leaf들의 List
+        :return: Merkle root
         """
+        from collections import deque
+        dq = deque(merkle_nodes)
+        lastNode = None
+
+        if len(merkle_nodes) % 2 == 1: # merkle_nodes의 수가 홀수이면 마지막 노드를 마지막에 root로 합쳐준다
+            lastNode = dq.pop()
+
+        while len(dq) > 1: # 노드가 하나 남을 때까지 부모노드를 찾는다
+            parentNode = MerkleNode(left=dq.popleft(), right=dq.popleft()) # 부모노드를 만들 때 자식노드를 두 개씩 꺼낸다
+            dq.append(parentNode) # 부모노드를 추가한다
+
+        return dq.pop() if lastNode is None else MerkleNode(left=dq.pop(), right=lastNode) # 마지막 남은 노드는 루트노드
 
     def merkle_root(self) -> bytes:
         return self.root.hash
