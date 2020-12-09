@@ -187,7 +187,7 @@ class BlockChain:
         state_hash = SHA256.new()
         for address in state_tree.keys():
             state_hash.update(bytes(address))
-            state_hash.update(bytes(state_tree[address]))
+            state_hash.update(state_tree[address].to_bytes(256, byteorder='big'))
         state_root = state_hash.digest()
         # TODO: 이후 블록 생성 구현
 
@@ -241,7 +241,7 @@ class BlockChain:
         state_hash = SHA256.new()
         for address in state_tree.keys():
             state_hash.update(bytes(address))
-            state_hash.update(bytes(state_tree[address]))
+            state_hash.update(state_tree[address].to_bytes(256, byteorder='big'))
         state_root = state_hash.digest()
         if self.block_chain[index].block_header.state_root != state_root:
             return False
@@ -252,7 +252,7 @@ class BlockChain:
                               self.block_chain[index - 1].block_header.parent_hash + \
                               self.block_chain[index - 1].block_header.merkle_root + \
                               self.block_chain[index - 1].block_header.state_root + \
-                              bytes(self.block_chain[index - 1].block_header.nonce)
+                              self.block_chain[index - 1].block_header.nonce.to_bytes(256, byteorder='big')
             prev_hash = SHA256.new(prev_hash_input).digest()
             if self.block_chain[index].block_header.parent_hash != prev_hash:
                 return False
@@ -262,7 +262,7 @@ class BlockChain:
                      self.block_chain[index].block_header.parent_hash + \
                      self.block_chain[index].block_header.merkle_root + \
                      self.block_chain[index].block_header.state_root + \
-                     bytes(self.block_chain[index].block_header.nonce)
+                     self.block_chain[index].block_header.nonce.to_bytes(256, byteorder='big')
         sha = SHA256.new(hash_input).digest()
         limit = 2 ** 256 // self.block_chain[index].block_header.difficulty
 
