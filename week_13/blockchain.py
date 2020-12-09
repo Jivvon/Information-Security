@@ -153,9 +153,19 @@ class BlockChain:
         nonce_dict에 해당 address의 정보가 없을 경우 default값과 함께 추가
 
         :param transaction_list:
-        :return: nonce 값을 확인 후 올바른 nonce를 가진
+        :return: nonce 값을 확인 후 올바른 nonce를 가진 nonce_dict
         """
         # TODO:
+        nonce_dict = deepcopy(self.block_chain[-1].nonce_dict)
+        for transaction in transaction_list:
+            if nonce_dict[transaction.sender] == transaction.nonce: # 중복이면 무시
+                del transaction
+                continue
+            if transaction.receiver not in nonce_dict.keys():
+                nonce_dict[transaction.receiver] = -1
+
+        return transaction_list, nonce_dict
+
 
     def update_state_tree(self, transaction_list: List[Transaction]) -> Dict[Address, int]:
         """
@@ -165,9 +175,19 @@ class BlockChain:
         트랜잭션의 송금액에 맞게 보유 금액을 조정 (차감)
 
         :param transaction_list:
-        :return: state root 값
+        :return: state tree 값
         """
         # TODO
+        state_tree = deepcopy(self.block_chain[-1].state_tree)
+        for transaction in transaction_list:
+            state_tree[transaction.sender] -= transaction.value
+            if transaction.receiver in state_tree.keys():
+                state_tree[transaction.receiver] += transaction.value
+            else:
+                state_tree[transaction.receiver] = transaction.value
+
+        return state_tree
+
 
     def mining(self, transaction_list: List[Transaction]):
         """
@@ -190,6 +210,23 @@ class BlockChain:
             state_hash.update(state_tree[address].to_bytes(256, byteorder='big'))
         state_root = state_hash.digest()
         # TODO: 이후 블록 생성 구현
+
+        for transaction in txs:
+            limit = 2 ** 256 // self.block_chain[0].block_header.difficulty
+            while int.from_bytes(transaction.hash().digest(), byteorder='big') >= limit:
+                transaction.nonce += 1
+            last_block = self.block_chain[-1]
+            block_header = BlockHeader(last_block.block_header.block_number + 1,
+                                       last_block.block_header.parent_hash,
+                                       # state_hash,
+                                       # self.block_chain[-1].block_header.parent_hash, # 마지막 블록의 해시여야하는 거 같은데..
+                                       merkle_root,
+                                       state_root,
+                                       last_block.block_header.difficulty,
+                                       last_block.nonce_dict[transaction.sender]
+                                       ) # nonce
+            self.block_chain.append(Block(block_header, merkle_tree, state_tree, nonce_dict))
+
 
     def verify(self) -> bool:
         """
