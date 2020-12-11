@@ -56,3 +56,4 @@ def test_handshake_key():
     client1.handshake(proxy1, '123.556.0.5', enc)
 
     assert client1.session_key['123.556.0.5'] == session_key
+
